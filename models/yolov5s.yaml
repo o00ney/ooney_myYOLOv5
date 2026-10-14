@@ -5,6 +5,8 @@
 # Task docs: https://docs.ultralytics.com/tasks/detect
 # Example usage: python train.py --cfg yolov5s.yaml --data coco.yaml
 
+# myChanges: C2f, SE
+
 # Parameters
 nc: 80 # number of classes
 depth_multiple: 0.33 # model depth multiple
