@@ -26,6 +26,7 @@ if platform.system() != "Windows":
     ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from models.common import (
+    SE,
     C2f,
     C3,
     C3SPP,
@@ -444,6 +445,12 @@ def parse_model(d, ch):
             c2 = ch[f] * args[0] ** 2
         elif m is Expand:
             c2 = ch[f] // args[0] ** 2
+        elif m is SE:
+            c1 = ch[f]
+            c2 = args[0]
+            if c2 != no:  # if not output
+                c2 = make_divisible(c2 * gw, ch_mul)
+            args = [c1, args[1]]
         else:
             c2 = ch[f]
 
