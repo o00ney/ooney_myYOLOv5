@@ -86,7 +86,37 @@ class SE(nn.Module):
         out = F.relu(out)
         out = self.excitation(out)
         return x*F.sigmoid(out)
-    
+
+
+class InvertedResidual(nn.Module):
+    """Stack MobileNetV2 inverted residual blocks."""
+
+    def __init__(self, c1, c2, n=1, s=1, e=6):
+        super().__init__()
+        self.add = s == 1 and c1 == c2
+        self.m = nn.ModuleList()
+
+        for i in range(n):
+            c = c1 if i == 0 else c2
+            stride = s if i == 0 else 1
+            c_ = int(round(c * e))  # expanded channels
+
+            self.m.append(
+                nn.Sequential(
+                    Conv(c, c_, 1, 1, act=nn.ReLU6(inplace=True))
+                    if e != 1 else nn.Identity(),
+                    Conv(c_, c_, 3, stride, g=c_, act=nn.ReLU6(inplace=True)),
+                    Conv(c_, c2, 1, 1, act=False),
+                )
+            )
+
+    def forward(self, x):
+        """Apply each block with its own residual connection."""
+        for i, block in enumerate(self.m):
+            y = block(x)
+            x = x + y if i > 0 or self.add else y
+        return x
+
 
 class Conv(nn.Module):
     """Applies a convolution, batch normalization, and activation function to an input tensor in a neural network."""
